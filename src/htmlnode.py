@@ -1,6 +1,6 @@
 
 class HTMLNode:
-    def __init__(self, tag=None, value=None, children=None, props=None) -> None:
+    def __init__(self, tag:str=None, value:str=None, children:list=None, props:dict=None) -> None:
         self.tag = tag
         self.value = value
         self.children = children
@@ -26,7 +26,7 @@ class HTMLNode:
     
 
 class LeafNode(HTMLNode):
-    def __init__(self, tag=None, value=None, props=None) -> None:
+    def __init__(self, tag:str=None, value:str=None, props:dict=None) -> None:
         if value == None:
             raise ValueError("No value provided for leaf")
         super().__init__(tag, value, None, props)
@@ -44,7 +44,7 @@ class LeafNode(HTMLNode):
     
 
 class ParentNode(HTMLNode):
-    def __init__(self, tag=None, children=None, props=None) -> None:
+    def __init__(self, tag:str=None, children:list=None, props:dict=None) -> None:
         if children == None:
             raise ValueError("No children provided for parent")
         super().__init__(tag, None, children, props)

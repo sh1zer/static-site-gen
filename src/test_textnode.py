@@ -1,6 +1,7 @@
 import unittest
 
-from textnode import TextNode
+from htmlnode import LeafNode
+from textnode import TextNode, text_node_to_html_node
 
 
 class TestTextNode(unittest.TestCase):
@@ -9,6 +10,24 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is a test node", "bold", "url.com")
         node2 = TextNode("This is a test node", "bold", "url.com")
         self.assertEqual(node, node2)
+    
+    def test_text_to_html(self):
+        print("\nTesting textNode to HTMLNode OK")
+        node = text_node_to_html_node(TextNode("This is a test node", "text"))
+        node2 = text_node_to_html_node(TextNode("This is a test node", "bold"))
+        node3 = text_node_to_html_node(TextNode("This is a test node", "italic"))
+        node4 = text_node_to_html_node(TextNode("This is a test node", "code"))
+        node5 = text_node_to_html_node(TextNode("This is a test node", "link", "url.com"))
+        node6 = text_node_to_html_node(TextNode("This is a test node", "image", "srcofimg.com"))
+
+        self.assertEqual(node, LeafNode(tag=None, value="This is a test node", props=None))
+        self.assertEqual(node2, LeafNode(tag="b", value="This is a test node", props=None))
+        self.assertEqual(node3, LeafNode(tag="i", value="This is a test node", props=None))
+        self.assertEqual(node4, LeafNode(tag="code", value="This is a test node", props=None))
+        self.assertEqual(node5, LeafNode(tag="a", value="This is a test node", props={"href":"url.com"}))
+        self.assertEqual(node6, LeafNode(tag="img", value="This is a test node", props={"src":"srcofimg.com"}))
+        
+
 
 if __name__ == '__main__':
     unittest.main()
