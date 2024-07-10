@@ -1,4 +1,5 @@
 from htmlnode import LeafNode
+import re
 
 class TextNode:
     def __init__(self, text:str, text_type:str, url:str=None):
@@ -30,3 +31,21 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     
     elif text_node.text_type == "image":
         return LeafNode(tag="img", value=text_node.text, props={"src":text_node.url})
+    
+def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:str) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        text:str = '' + node.text
+        if text.count(delimiter) % 2 != 0:
+            raise SyntaxError("Invalid markdown syntax (no closing delimiter)")
+        segments = text.split(delimiter)
+        for i in range(len(segments)):
+            if i % 2:
+                new_nodes.append(TextNode(segments[i], text_type))
+            else:
+                new_nodes.append(TextNode(segments[i], node.text_type))
+        
+    return new_nodes
+
+
+    
