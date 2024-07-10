@@ -1,6 +1,20 @@
 from htmlnode import LeafNode
 import re
 
+text_type_text = "text"
+text_type_bold = "bold"
+text_type_italic = "italic"
+text_type_code = "code"
+text_type_link = "link"
+text_type_image = "image"
+
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_unordered_list = "unordered_list"
+block_type_ordered_list = "ordered_list"
+
 class TextNode:
     def __init__(self, text:str, text_type:str, url:str=None):
         self.text = text
@@ -114,3 +128,38 @@ def text_to_text_nodes(text:str) -> list[TextNode]:
     new_nodes = split_nodes_delimiter(new_nodes, "`", "code")
     
     return new_nodes
+
+
+def markdown_to_blocks(markdown:str) -> list[str]:
+    lines = markdown.split('\n')
+    final = ['']
+    for line in lines:
+        if line:
+            final[-1] += line + '\n'
+        elif final[-1] != '':
+            final.append('')
+    final = [block[:-1] for block in final]
+    return final
+
+
+def block_to_block_type(block:str) -> str:
+    if len(block.split()[0]) == block.split()[0].count("#") and block.split()[0].count("#") in range(1,7):
+        return block_type_heading
+    
+    if block[:3] == "```" and block[-3:] == "```":
+        return block_type_code
+
+    lines = block.split('\n')
+    if len(lines) == [line[0] for line in lines].count('>'):
+        return block_type_quote
+
+    if len(lines) == [line[:2] for line in lines].count('- ') or len(lines) == [line[:2] for line in lines].count('* '):
+        return block_type_unordered_list
+    
+    for i in range(1, len(lines) + 1):
+        if f"{i}. " != lines[i - 1][:len(f"{i}. ")]:
+            break
+        if i == len(lines):
+            return block_type_ordered_list
+
+    return block_type_paragraph

@@ -119,6 +119,76 @@ class TestTextNode(unittest.TestCase):
                                 TextNode("image", "image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
                                 TextNode(" and a ", "text"),
                                 TextNode("link", "link", "https://boot.dev"),])
+        
+    def test_markdown_to_blocks(self):
+        print("\nTesting markdown_to_blocks")
+        md = """This is **bolded** paragraph
+
+This is another paragraph with *italic* text and `code` here
+This is the same paragraph on a new line
+
+* This is a list
+* with items"""
+        md2 = """This is **bolded** paragraph
+
+This is another paragraph with *italic* text and `code` here
+This is the same paragraph on a new line
+
+
+* This is a list
+* with items"""
+
+        self.assertEqual(markdown_to_blocks(md), ["This is **bolded** paragraph", 
+                                                  "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+                                                  "* This is a list\n* with items"])
+        self.assertEqual(markdown_to_blocks(md2), ["This is **bolded** paragraph", 
+                                                  "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+                                                  "* This is a list\n* with items"])
+        
+    def test_block_to_block_type(self):
+        print("\nTesting block_to_block_type")
+        block1 = "### heading text"
+        self.assertEqual(block_to_block_type(block1), block_type_heading)
+
+        block1 = "####### not heading text"
+        self.assertNotEqual(block_to_block_type(block1), block_type_heading)
+
+        block1 = "#notheading text"
+        self.assertNotEqual(block_to_block_type(block1), block_type_heading)
+
+        block1 = "```\ncode block\n```"
+        self.assertEqual(block_to_block_type(block1), block_type_code)
+
+        block1 = "``\ncode block\n```"
+        self.assertNotEqual(block_to_block_type(block1), block_type_code)
+
+        block1 = "```code block```"
+        self.assertEqual(block_to_block_type(block1), block_type_code)
+
+        block1 = "> hi\n> this is a quote\n> dont get it twisted"
+        self.assertEqual(block_to_block_type(block1), block_type_quote)
+
+        block1 = "* hi\n* this is an unordered list\n* dont get it twisted"
+        self.assertEqual(block_to_block_type(block1), block_type_unordered_list)
+
+        block1 = "* hi\n- this is an unordered list\n* dont get it twisted"
+        self.assertNotEqual(block_to_block_type(block1), block_type_unordered_list)
+
+        block1 = "- hi\n- this is an unordered list\n- dont get it twisted"
+        self.assertEqual(block_to_block_type(block1), block_type_unordered_list)
+
+        block1 = "- hi\n-this is an unordered list\n- dont get it twisted"
+        self.assertNotEqual(block_to_block_type(block1), block_type_unordered_list)
+
+        block1 = "1. hi\n2. this is an ordered list\n3. dont get it twisted"
+        self.assertEqual(block_to_block_type(block1), block_type_ordered_list)
+
+        block1 = "1. hi\n2.this is an ordered list\n3. dont get it twisted"
+        self.assertNotEqual(block_to_block_type(block1), block_type_ordered_list)
+
+        block1 = "1. hi\n2. this is an ordered list\n2. dont get it twisted"
+        self.assertNotEqual(block_to_block_type(block1), block_type_ordered_list)
+
 
 if __name__ == '__main__':
     unittest.main()
