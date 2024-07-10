@@ -40,7 +40,7 @@ class LeafNode(HTMLNode):
         all_props = self.props_to_html() if self.props else ""
         return f"<{self.tag}{all_props}>{self.value}</{self.tag}>"
     def __repr__(self) -> str:
-        return f"LeafNode(tag=\"{self.tag}\", value=\"{self.value}\", children={self.children}, props={self.props})"
+        return f"LeafNode(tag=\"{self.tag}\", value=\"{self.value}\", props={self.props})"
     
 
 class ParentNode(HTMLNode):
@@ -62,4 +62,4 @@ class ParentNode(HTMLNode):
         return res
     
     def __repr__(self) -> str:
-        return f"ParentNode(tag=\"{self.tag}\", value=\"{self.value}\", children={self.children}, props={self.props})"
+        return f"ParentNode(tag=\"{self.tag}\", children={self.children}, props={self.props})"

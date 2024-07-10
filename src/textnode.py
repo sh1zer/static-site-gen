@@ -1,4 +1,4 @@
-from htmlnode import LeafNode
+from htmlnode import LeafNode, HTMLNode
 import re
 
 text_type_text = "text"
@@ -29,7 +29,7 @@ class TextNode:
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     if text_node.text_type == "text":
-        return LeafNode(value=text_node.text)
+        return LeafNode(tag=None, value=text_node.text)
     
     elif text_node.text_type == "bold":
         return LeafNode(tag="b", value=text_node.text)
@@ -163,3 +163,47 @@ def block_to_block_type(block:str) -> str:
             return block_type_ordered_list
 
     return block_type_paragraph
+
+
+def block_heading_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) != block_type_heading:
+        raise ValueError(f"Incorrect block type ({block_to_block_type(block)})")
+    level = block.split()[0].count("#")
+    return HTMLNode(tag=f"h{level}", value=block[level + 1:], children=None, props=None)
+
+def block_code_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) != block_type_code:
+        raise ValueError("Incorrect block type")
+    return HTMLNode(tag="code", value=block[3:-3], children=None, props=None)
+
+def block_quote_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) != block_type_quote:
+        raise ValueError("Incorrect block type")
+    lines = block.split('\n')
+    return HTMLNode(tag="blockquote", value='\n'.join([line[1:] for line in lines]), children=None, props=None)
+
+def block_unordered_list_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) != block_type_unordered_list:
+        raise ValueError("Incorrect block type")
+    lines = block.split('\n')
+    return HTMLNode(tag="ul", value='\n'.join([line[2:] for line in lines]), children=None, props=None)
+
+def block_ordered_list_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) != block_type_ordered_list:
+        raise ValueError("Incorrect block type")
+    lines = block.split('\n')
+    return HTMLNode(tag="ol", value='\n'.join([' '.join(line.split()[1:]) for line in lines]), children=None, props=None)
+
+def block_paragraph_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) != block_type_paragraph:
+        raise ValueError(f"Incorrect block type ({block_to_block_type(block)})")
+    return HTMLNode(tag="p", value=block, children=None, props=None)
+
+
+def text_to_children(text:str) -> list[HTMLNode]:
+    res = []
+    text_nodes = text_to_text_nodes(text)
+    for node in text_nodes:
+        res.append(text_node_to_html_node(node))
+    #print(res)
+    return res

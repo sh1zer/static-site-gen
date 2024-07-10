@@ -6,14 +6,14 @@ from textnode import *
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
-        print("\nTesting TextNode equal method")
+        print("\nTesting TextNode equal method", end='')
         node = TextNode("This is a test node", "bold", "url.com")
         node2 = TextNode("This is a test node", "bold", "url.com")
         self.assertEqual(node, node2)
     
 
     def test_text_to_html(self):
-        print("\nTesting textNode to HTMLNode OK")
+        print("\nTesting textNode to HTMLNode", end='')
         node = text_node_to_html_node(TextNode("This is a test node", "text"))
         node2 = text_node_to_html_node(TextNode("This is a test node", "bold"))
         node3 = text_node_to_html_node(TextNode("This is a test node", "italic"))
@@ -30,7 +30,7 @@ class TestTextNode(unittest.TestCase):
 
 
     def test_split_by_delimiter(self):
-        print("\nTesting split TextNode by delimiter")
+        print("\nTesting split TextNode by delimiter", end='')
         node = TextNode("This `is` a test node", "text")
         node2 = TextNode("This is a **test node**", "text")
         node3 = TextNode("This is a test node", "italic")
@@ -53,21 +53,21 @@ class TestTextNode(unittest.TestCase):
         
 
     def test_extract_markdown_images(self):
-        print("\nTesting extract_markdown_images ")
+        print("\nTesting extract_markdown_images ", end='')
         text = extract_markdown_images("This is text with an ![image](https://link.com.png) and ![another](https://link2.com.png)")
 
         self.assertEqual(text, [("image", "https://link.com.png"), ("another", "https://link2.com.png")])
 
 
     def test_extract_markdown_links(self):
-        print("\nTesting extract_markdown_links")
+        print("\nTesting extract_markdown_links", end='')
         text = extract_markdown_links("This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)")
 
         self.assertEqual(text, [("link", "https://www.example.com"), ("another", "https://www.example.com/another")])
         
 
     def test_split_nodes_image(self):
-        print("\nTesting split_nodes_image")
+        print("\nTesting split_nodes_image", end='')
         nodes = split_nodes_image([TextNode("This is text with an ![image](https://link.com.png) and another ![second image](https://url.com.png)","text")])
         nodes2 = split_nodes_image([TextNode("This is text with an ![image](https://link.com.png) and another ![second image](https://url.com.png)","text"),
                                     TextNode("This is text with an ![image](https://link.com.png) and another ![second image](https://url.com.png)","text")])
@@ -86,7 +86,7 @@ class TestTextNode(unittest.TestCase):
                                 TextNode("second image", "image", "https://url.com.png"),])
         
     def test_split_nodes_link(self):
-        print("\nTesting split_nodes_link")
+        print("\nTesting split_nodes_link", end='')
         nodes = split_nodes_link([TextNode("This is text with an [link](https://link.com.png) and another [second link](https://url.com.png)","text")])
         nodes2 = split_nodes_link([TextNode("This is text with an [link](https://link.com.png) and another [second link](https://url.com.png)","text"),
                                     TextNode("This is text with an [link](https://link.com.png) and another [second link](https://url.com.png)","text")])
@@ -105,7 +105,7 @@ class TestTextNode(unittest.TestCase):
                                 TextNode("second link", "link", "https://url.com.png"),])
 
     def test_text_to_text_nodes(self):
-        print("\nTesting text_to_text_nodes")
+        print("\nTesting text_to_text_nodes", end='')
         nodes = text_to_text_nodes("This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)")
 
         self.assertEqual(nodes, [
@@ -121,7 +121,7 @@ class TestTextNode(unittest.TestCase):
                                 TextNode("link", "link", "https://boot.dev"),])
         
     def test_markdown_to_blocks(self):
-        print("\nTesting markdown_to_blocks")
+        print("\nTesting markdown_to_blocks", end='')
         md = """This is **bolded** paragraph
 
 This is another paragraph with *italic* text and `code` here
@@ -146,7 +146,7 @@ This is the same paragraph on a new line
                                                   "* This is a list\n* with items"])
         
     def test_block_to_block_type(self):
-        print("\nTesting block_to_block_type")
+        print("\nTesting block_to_block_type", end='')
         block1 = "### heading text"
         self.assertEqual(block_to_block_type(block1), block_type_heading)
 
@@ -189,6 +189,46 @@ This is the same paragraph on a new line
         block1 = "1. hi\n2. this is an ordered list\n2. dont get it twisted"
         self.assertNotEqual(block_to_block_type(block1), block_type_ordered_list)
 
+    def test_block_type_to_html(self):
+        print("\nTesting block_[type]_to_html", end='')
+        block = "### heading text"
+        self.assertEqual(block_heading_to_html(block), HTMLNode(tag="h3", value="heading text", children=None, props=None))
+        
+        block = "```heading text```"
+        self.assertEqual(block_code_to_html(block), HTMLNode(tag="code", value="heading text", children=None, props=None))
+        
+        block = "```heading\n text```"
+        self.assertEqual(block_code_to_html(block), HTMLNode(tag="code", value="heading\n text", children=None, props=None))
+        
+        block = ">heading text\n>heading text"
+        self.assertEqual(block_quote_to_html(block), HTMLNode(tag="blockquote", value="heading text\nheading text", children=None, props=None))
+        
+        block = "- heading text\n- heading text"
+        self.assertEqual(block_unordered_list_to_html(block), HTMLNode(tag="ul", value="heading text\nheading text", children=None, props=None))
+        
+        block = "* heading text\n* heading text"
+        self.assertEqual(block_unordered_list_to_html(block), HTMLNode(tag="ul", value="heading text\nheading text", children=None, props=None))
+        
+        block = "1. heading text\n2. heading text"
+        self.assertEqual(block_ordered_list_to_html(block), HTMLNode(tag="ol", value="heading text\nheading text", children=None, props=None))
+        
+        block = "heading text\nheading text"
+        self.assertEqual(block_paragraph_to_html(block), HTMLNode(tag="p", value="heading text\nheading text", children=None, props=None))
+        
+    def test_text_to_children(self):
+        print("\nTesting text_to_children", end='')
+        block = "heading text **bold text** `code text` just some more *italics* hehe ![image](https://url.com.png) hoho [link](https://link.edu.pl) hahaha"
+        self.assertEqual(text_to_children(block), [LeafNode(tag=None, value="heading text ", props=None),
+                                                    LeafNode(tag="b", value="bold text", props=None),
+                                                    LeafNode(tag=None, value=" ", props=None),
+                                                    LeafNode(tag="code", value="code text", props=None),
+                                                    LeafNode(tag=None, value=" just some more ", props=None),
+                                                    LeafNode(tag="i", value="italics", props=None),
+                                                    LeafNode(tag=None, value=" hehe ", props=None),
+                                                    LeafNode(tag="img", value="image", props={"src":"https://url.com.png"}),
+                                                    LeafNode(tag=None, value=" hoho ", props=None),
+                                                    LeafNode(tag="a", value="link", props={"href":"https://link.edu.pl"}),
+                                                    LeafNode(tag=None, value=" hahaha", props=None),])
 
 if __name__ == '__main__':
     unittest.main()
