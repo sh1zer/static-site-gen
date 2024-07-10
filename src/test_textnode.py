@@ -1,7 +1,7 @@
 import unittest
 
 from htmlnode import LeafNode
-from textnode import TextNode, text_node_to_html_node, split_nodes_delimiter
+from textnode import *
 
 
 class TestTextNode(unittest.TestCase):
@@ -50,6 +50,18 @@ class TestTextNode(unittest.TestCase):
                                     TextNode("test node", "bold",),
                                     TextNode("", "italic"),])
         
+    def test_extract_markdown_images(self):
+        print("\nTesting extract markdown images ")
 
+        text = extract_markdown_images("This is text with an ![image](https://link.com.png) and ![another](https://link2.com.png)")
+
+        self.assertEqual(text, [("image", "https://link.com.png"), ("another", "https://link2.com.png")])
+
+    def test_extract_markdown_links(self):
+        print("\nTesting extract markdown links ")
+
+        text = extract_markdown_links("This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)")
+        self.assertEqual(text, [("link", "https://www.example.com"), ("another", "https://www.example.com/another")])
+        
 if __name__ == '__main__':
     unittest.main()
