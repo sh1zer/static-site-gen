@@ -35,6 +35,10 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
 def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:str) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
+        if node.text_type != "text":
+            new_nodes.append(node)
+            continue
+
         text:str = '' + node.text
         if text.count(delimiter) % 2 != 0:
             raise SyntaxError("Invalid markdown syntax (no closing delimiter)")
@@ -51,6 +55,9 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:str
 def split_nodes_image(old_nodes:list[TextNode]) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
+        if node.text_type != "text":
+            new_nodes.append(node)
+            continue
         text = '' + node.text
         final = []
         images = extract_markdown_images(node.text)
@@ -65,9 +72,12 @@ def split_nodes_image(old_nodes:list[TextNode]) -> list[TextNode]:
     
     return new_nodes
 
-def split_nodes_link(old_nodes):
+def split_nodes_link(old_nodes:list[TextNode]) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
+        if node.text_type != "text":
+            new_nodes.append(node)
+            continue
         text = '' + node.text
         final = []
         links = extract_markdown_links(node.text)
@@ -92,3 +102,15 @@ def extract_markdown_links(text:str) -> list[tuple]:
     return matches
 
 
+def text_to_text_nodes(text:str) -> list[TextNode]:
+    new_nodes = split_nodes_image([TextNode(text, "text")])
+    
+    new_nodes = split_nodes_link(new_nodes)
+    
+    new_nodes = split_nodes_delimiter(new_nodes, "**", "bold")
+    
+    new_nodes = split_nodes_delimiter(new_nodes, "*", "italic")
+    
+    new_nodes = split_nodes_delimiter(new_nodes, "`", "code")
+    
+    return new_nodes

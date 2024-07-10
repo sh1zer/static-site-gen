@@ -11,7 +11,7 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("This is a test node", "bold", "url.com")
         self.assertEqual(node, node2)
     
-    
+
     def test_text_to_html(self):
         print("\nTesting textNode to HTMLNode OK")
         node = text_node_to_html_node(TextNode("This is a test node", "text"))
@@ -32,7 +32,7 @@ class TestTextNode(unittest.TestCase):
     def test_split_by_delimiter(self):
         print("\nTesting split TextNode by delimiter")
         node = TextNode("This `is` a test node", "text")
-        node2 = TextNode("This is a **test node**", "italic")
+        node2 = TextNode("This is a **test node**", "text")
         node3 = TextNode("This is a test node", "italic")
         node4 = TextNode("This is a test node", "code")
         
@@ -46,9 +46,9 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(new_nodes2, [TextNode("This ", "text"),
                                     TextNode("is", "code",),
                                     TextNode(" a test node", "text"),
-                                    TextNode("This is a **test node**", "italic")])
+                                    TextNode("This is a **test node**", "text")])
         self.assertEqual(new_nodes3, [TextNode("This `is` a test node", "text"),
-                                    TextNode("This is a ", "italic"),
+                                    TextNode("This is a ", "text"),
                                     TextNode("test node", "bold",),])
         
 
@@ -85,9 +85,40 @@ class TestTextNode(unittest.TestCase):
                                 TextNode(" and another ", "text"),
                                 TextNode("second image", "image", "https://url.com.png"),])
         
+    def test_split_nodes_link(self):
+        print("\nTesting split_nodes_link")
+        nodes = split_nodes_link([TextNode("This is text with an [link](https://link.com.png) and another [second link](https://url.com.png)","text")])
+        nodes2 = split_nodes_link([TextNode("This is text with an [link](https://link.com.png) and another [second link](https://url.com.png)","text"),
+                                    TextNode("This is text with an [link](https://link.com.png) and another [second link](https://url.com.png)","text")])
 
+        self.assertEqual(nodes, [TextNode("This is text with an ", "text"),
+                                TextNode("link", "link", "https://link.com.png"),
+                                TextNode(" and another ", "text"),
+                                TextNode("second link", "link", "https://url.com.png")])
+        self.assertEqual(nodes2, [TextNode("This is text with an ", "text"),
+                                TextNode("link", "link", "https://link.com.png"),
+                                TextNode(" and another ", "text"),
+                                TextNode("second link", "link", "https://url.com.png"),
+                                TextNode("This is text with an ", "text"),
+                                TextNode("link", "link", "https://link.com.png"),
+                                TextNode(" and another ", "text"),
+                                TextNode("second link", "link", "https://url.com.png"),])
 
+    def test_text_to_text_nodes(self):
+        print("\nTesting text_to_text_nodes")
+        nodes = text_to_text_nodes("This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)")
 
+        self.assertEqual(nodes, [
+                                TextNode("This is ", "text"),
+                                TextNode("text", "bold"),
+                                TextNode(" with an ", "text"),
+                                TextNode("italic", "italic"),
+                                TextNode(" word and a ", "text"),
+                                TextNode("code block", "code"),
+                                TextNode(" and an ", "text"),
+                                TextNode("image", "image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+                                TextNode(" and a ", "text"),
+                                TextNode("link", "link", "https://boot.dev"),])
 
 if __name__ == '__main__':
     unittest.main()
