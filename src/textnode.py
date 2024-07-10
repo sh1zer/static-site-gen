@@ -43,8 +43,43 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:str
             if i % 2:
                 new_nodes.append(TextNode(segments[i], text_type))
             else:
-                new_nodes.append(TextNode(segments[i], node.text_type))
+                if len(segments[i]) > 0:
+                    new_nodes.append(TextNode(segments[i], node.text_type))
         
+    return new_nodes
+
+def split_nodes_image(old_nodes:list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        text = '' + node.text
+        final = []
+        images = extract_markdown_images(node.text)
+        for image in images:
+            text = text.split(f"![{image[0]}]({image[1]})", 1)
+            new_nodes.append(TextNode(text[0], node.text_type))
+            new_nodes.append(TextNode(image[0], "image", image[1]))
+            text = text[1]
+
+        if len(text) > 0:
+            new_nodes.append(TextNode(text, node.text_type))
+    
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        text = '' + node.text
+        final = []
+        links = extract_markdown_links(node.text)
+        for link in links:
+            text = text.split(f"[{link[0]}]({link[1]})", 1)
+            new_nodes.append(TextNode(text[0], node.text_type))
+            new_nodes.append(TextNode(link[0], "link", link[1]))
+            text = text[1]
+
+        if len(text) > 0:
+            new_nodes.append(TextNode(text, node.text_type))
+    
     return new_nodes
 
 
@@ -55,3 +90,5 @@ def extract_markdown_images(text:str) -> list[tuple]:
 def extract_markdown_links(text:str) -> list[tuple]:
     matches = re.findall(r"\[(.*?)\]\((.*?)\)", text)
     return matches
+
+

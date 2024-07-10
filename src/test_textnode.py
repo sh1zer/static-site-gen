@@ -11,6 +11,7 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("This is a test node", "bold", "url.com")
         self.assertEqual(node, node2)
     
+    
     def test_text_to_html(self):
         print("\nTesting textNode to HTMLNode OK")
         node = text_node_to_html_node(TextNode("This is a test node", "text"))
@@ -26,6 +27,7 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(node4, LeafNode(tag="code", value="This is a test node", props=None))
         self.assertEqual(node5, LeafNode(tag="a", value="This is a test node", props={"href":"url.com"}))
         self.assertEqual(node6, LeafNode(tag="img", value="This is a test node", props={"src":"srcofimg.com"}))
+
 
     def test_split_by_delimiter(self):
         print("\nTesting split TextNode by delimiter")
@@ -47,21 +49,45 @@ class TestTextNode(unittest.TestCase):
                                     TextNode("This is a **test node**", "italic")])
         self.assertEqual(new_nodes3, [TextNode("This `is` a test node", "text"),
                                     TextNode("This is a ", "italic"),
-                                    TextNode("test node", "bold",),
-                                    TextNode("", "italic"),])
+                                    TextNode("test node", "bold",),])
         
-    def test_extract_markdown_images(self):
-        print("\nTesting extract markdown images ")
 
+    def test_extract_markdown_images(self):
+        print("\nTesting extract_markdown_images ")
         text = extract_markdown_images("This is text with an ![image](https://link.com.png) and ![another](https://link2.com.png)")
 
         self.assertEqual(text, [("image", "https://link.com.png"), ("another", "https://link2.com.png")])
 
-    def test_extract_markdown_links(self):
-        print("\nTesting extract markdown links ")
 
+    def test_extract_markdown_links(self):
+        print("\nTesting extract_markdown_links")
         text = extract_markdown_links("This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)")
+
         self.assertEqual(text, [("link", "https://www.example.com"), ("another", "https://www.example.com/another")])
         
+
+    def test_split_nodes_image(self):
+        print("\nTesting split_nodes_image")
+        nodes = split_nodes_image([TextNode("This is text with an ![image](https://link.com.png) and another ![second image](https://url.com.png)","text")])
+        nodes2 = split_nodes_image([TextNode("This is text with an ![image](https://link.com.png) and another ![second image](https://url.com.png)","text"),
+                                    TextNode("This is text with an ![image](https://link.com.png) and another ![second image](https://url.com.png)","text")])
+
+        self.assertEqual(nodes, [TextNode("This is text with an ", "text"),
+                                TextNode("image", "image", "https://link.com.png"),
+                                TextNode(" and another ", "text"),
+                                TextNode("second image", "image", "https://url.com.png")])
+        self.assertEqual(nodes2, [TextNode("This is text with an ", "text"),
+                                TextNode("image", "image", "https://link.com.png"),
+                                TextNode(" and another ", "text"),
+                                TextNode("second image", "image", "https://url.com.png"),
+                                TextNode("This is text with an ", "text"),
+                                TextNode("image", "image", "https://link.com.png"),
+                                TextNode(" and another ", "text"),
+                                TextNode("second image", "image", "https://url.com.png"),])
+        
+
+
+
+
 if __name__ == '__main__':
     unittest.main()
