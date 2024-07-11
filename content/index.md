@@ -30,3 +30,6 @@ func main(){
     fmt.Println("Hello, World!")
 }
 ```
+
+![image](images/rivendell.png)
+[first post here](/majesty)

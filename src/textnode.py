@@ -143,6 +143,8 @@ def markdown_to_blocks(markdown:str) -> list[str]:
 
 
 def block_to_block_type(block:str) -> str:
+    if len(block) == 0:
+        return block_type_paragraph
     if len(block.split()[0]) == block.split()[0].count("#") and block.split()[0].count("#") in range(1,7):
         return block_type_heading
     
@@ -155,7 +157,7 @@ def block_to_block_type(block:str) -> str:
 
     if len(lines) == [line[:2] for line in lines].count('- ') or len(lines) == [line[:2] for line in lines].count('* '):
         return block_type_unordered_list
-    
+
     for i in range(1, len(lines) + 1):
         if f"{i}. " != lines[i - 1][:len(f"{i}. ")]:
             break
