@@ -1,7 +1,10 @@
 from textnode import TextNode
+from copy_static import copy_dir
 
 def main():
     node = TextNode("test text", "text type", "this is a url")
-    print(node)
+
+    copy_dir("static", "test")
+    #print(node)
 
 main()

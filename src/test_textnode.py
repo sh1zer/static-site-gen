@@ -274,7 +274,7 @@ This is the same paragraph on a new line
                                                                                         ])
         #for i in range(len(str(mth_block).split('LeafNode'))):
         #    print(f"{str(mth_block).split('LeafNode')[i]}\n{str(expected).split('LeafNode')[i]}\n\n")
-        print(mth_block.to_html())
+        #print(mth_block.to_html())
         self.assertEqual(str(mth_block), str(expected))
 
         
