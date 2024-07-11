@@ -2,7 +2,7 @@ import os, shutil
 
 def copy_dir(source_path:str, dest_path:str) -> None:
     elements = os.listdir(source_path)
-    print(elements)
+    #print(elements)
 
     for ele in elements:
         if os.path.isfile(f"{source_path}/{ele}"):
