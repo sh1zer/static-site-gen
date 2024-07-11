@@ -204,17 +204,24 @@ This is the same paragraph on a new line
         self.assertEqual(block_quote_to_html(block), HTMLNode(tag="blockquote", value="heading text\nheading text", children=None, props=None))
         
         block = "- heading text\n- heading text"
-        self.assertEqual(block_unordered_list_to_html(block), HTMLNode(tag="ul", value="heading text\nheading text", children=None, props=None))
+        self.assertEqual(block_unordered_list_to_html(block), HTMLNode(tag="ul", value="<li>heading text</li>\n<li>heading text</li>", children=None, props=None))
         
         block = "* heading text\n* heading text"
-        self.assertEqual(block_unordered_list_to_html(block), HTMLNode(tag="ul", value="heading text\nheading text", children=None, props=None))
+        self.assertEqual(block_unordered_list_to_html(block), HTMLNode(tag="ul", value="<li>heading text</li>\n<li>heading text</li>", children=None, props=None))
         
         block = "1. heading text\n2. heading text"
-        self.assertEqual(block_ordered_list_to_html(block), HTMLNode(tag="ol", value="heading text\nheading text", children=None, props=None))
+        self.assertEqual(block_ordered_list_to_html(block), HTMLNode(tag="ol", value="<li>heading text</li>\n<li>heading text</li>", children=None, props=None))
         
         block = "heading text\nheading text"
         self.assertEqual(block_paragraph_to_html(block), HTMLNode(tag="p", value="heading text\nheading text", children=None, props=None))
         
+        block = "### heading text"
+        self.assertEqual(block_to_html(block), HTMLNode(tag="h3", value="heading text", children=None, props=None))
+        
+        block = "```heading text```"
+        self.assertEqual(block_to_html(block), HTMLNode(tag="code", value="heading text", children=None, props=None))
+        
+
     def test_text_to_children(self):
         print("\nTesting text_to_children", end='')
         block = "heading text **bold text** `code text` just some more *italics* hehe ![image](https://url.com.png) hoho [link](https://link.edu.pl) hahaha"
@@ -229,6 +236,49 @@ This is the same paragraph on a new line
                                                     LeafNode(tag=None, value=" hoho ", props=None),
                                                     LeafNode(tag="a", value="link", props={"href":"https://link.edu.pl"}),
                                                     LeafNode(tag=None, value=" hahaha", props=None),])
+        
+    def test_markdown_to_html_node(self):
+        print("\nTesting markdown_to_html_node", end='')
+        block = "heading text**bold text** `code text` just some more *italics* hehe ![image](https://url.com.png) hoho [link](https://link.edu.pl) hahaha"
+        mth_block = markdown_to_html_node(block)
+        expected = ParentNode(tag="div", children=[ParentNode(tag="p", children=[LeafNode(tag=None, value="heading text", props=None),
+                                                                                        LeafNode(tag="b", value="bold text", props=None),
+                                                                                        LeafNode(tag=None, value=" ", props=None),
+                                                                                        LeafNode(tag="code", value="code text", props=None),
+                                                                                        LeafNode(tag=None, value=" just some more ", props=None),
+                                                                                        LeafNode(tag="i", value="italics", props=None),
+                                                                                        LeafNode(tag=None, value=" hehe ", props=None),
+                                                                                        LeafNode(tag="img", value="image", props={"src":"https://url.com.png"}),
+                                                                                        LeafNode(tag=None, value=" hoho ", props=None),
+                                                                                        LeafNode(tag="a", value="link", props={"href":"https://link.edu.pl"}),
+                                                                                        LeafNode(tag=None, value=" hahaha", props=None),], props=None)])
+        #for i in range(len(str(mth_block).split('LeafNode'))):
+        #    print(f"{str(mth_block).split('LeafNode')[i]}\n{str(expected).split('LeafNode')[i]}\n\n")
+        self.assertEqual(mth_block, expected)
+
+        block = "# heading text**bold text** `code text`\n\n- just some more\n- *italics* hehe ![image](https://url.com.png)\n\n> hoho [link](https://link.edu.pl)\n\n```codeblock*bangbang*```"
+        mth_block = markdown_to_html_node(block)
+        expected = ParentNode(tag="div", children=[ParentNode(tag="h1", children=[LeafNode(tag=None, value="heading text", props=None),
+                                                                                        LeafNode(tag="b", value="bold text", props=None),
+                                                                                        LeafNode(tag=None, value=" ", props=None),
+                                                                                        LeafNode(tag="code", value="code text", props=None),]),
+                                                            ParentNode(tag="ul", children=[LeafNode(tag=None, value="<li>just some more</li>\n<li>", props=None),
+                                                                                        LeafNode(tag="i", value="italics", props=None),
+                                                                                        LeafNode(tag=None, value=" hehe ", props=None),
+                                                                                        LeafNode(tag="img", value="image", props={"src":"https://url.com.png"}),
+                                                                                        LeafNode(tag=None, value="</li>", props=None),]),
+                                                            ParentNode(tag="blockquote", children=[LeafNode(tag=None, value=" hoho ", props=None),
+                                                                                        LeafNode(tag="a", value="link", props={"href":"https://link.edu.pl"}),]),
+                                                            ParentNode(tag="pre", children=[ParentNode("code", children=[LeafNode(tag=None, value="codeblock"),
+                                                                                                                        LeafNode(tag='i', value="bangbang"),])])                            
+                                                                                        ])
+        #for i in range(len(str(mth_block).split('LeafNode'))):
+        #    print(f"{str(mth_block).split('LeafNode')[i]}\n{str(expected).split('LeafNode')[i]}\n\n")
+        print(mth_block.to_html())
+        self.assertEqual(str(mth_block), str(expected))
+
+        
+
 
 if __name__ == '__main__':
     unittest.main()

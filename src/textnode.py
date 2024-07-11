@@ -1,4 +1,4 @@
-from htmlnode import LeafNode, HTMLNode
+from htmlnode import LeafNode, HTMLNode, ParentNode
 import re
 
 text_type_text = "text"
@@ -186,19 +186,35 @@ def block_unordered_list_to_html(block:str) -> HTMLNode:
     if block_to_block_type(block) != block_type_unordered_list:
         raise ValueError("Incorrect block type")
     lines = block.split('\n')
-    return HTMLNode(tag="ul", value='\n'.join([line[2:] for line in lines]), children=None, props=None)
+    return HTMLNode(tag="ul", value='\n'.join([f'<li>{line[2:]}</li>' for line in lines]), children=None, props=None)
 
 def block_ordered_list_to_html(block:str) -> HTMLNode:
     if block_to_block_type(block) != block_type_ordered_list:
         raise ValueError("Incorrect block type")
     lines = block.split('\n')
-    return HTMLNode(tag="ol", value='\n'.join([' '.join(line.split()[1:]) for line in lines]), children=None, props=None)
+    return HTMLNode(tag="ol", value='\n'.join([f'<li>{' '.join(line.split()[1:])}</li>' for line in lines]), children=None, props=None)
 
 def block_paragraph_to_html(block:str) -> HTMLNode:
     if block_to_block_type(block) != block_type_paragraph:
         raise ValueError(f"Incorrect block type ({block_to_block_type(block)})")
     return HTMLNode(tag="p", value=block, children=None, props=None)
 
+
+def block_to_html(block:str) -> HTMLNode:
+    if block_to_block_type(block) == block_type_heading:
+        return block_heading_to_html(block)
+    if block_to_block_type(block) == block_type_code:
+        return block_code_to_html(block)
+    if block_to_block_type(block) == block_type_quote:
+        return block_quote_to_html(block)
+    if block_to_block_type(block) == block_type_paragraph:
+        return block_paragraph_to_html(block)
+    if block_to_block_type(block) == block_type_ordered_list:
+        return block_ordered_list_to_html(block)
+    if block_to_block_type(block) == block_type_unordered_list:
+        return block_unordered_list_to_html(block)
+    raise ValueError("idk wtf happened here")
+    
 
 def text_to_children(text:str) -> list[HTMLNode]:
     res = []
@@ -207,3 +223,22 @@ def text_to_children(text:str) -> list[HTMLNode]:
         res.append(text_node_to_html_node(node))
     #print(res)
     return res
+
+def markdown_to_html_node(markdown:str) -> HTMLNode:
+    blocks = markdown_to_blocks(markdown)
+    og_children = [block_to_html(block) for block in blocks]
+    new_children = []
+    for kid in og_children:
+        if len(text_to_children(kid.value)) == 1:
+            new_children.append(LeafNode(kid.tag, kid.value, kid.props))
+            
+        else:
+            if kid.tag != "code":
+                new_children.append(ParentNode(kid.tag, text_to_children(kid.value), kid.props))
+            else:
+                new_children.append(ParentNode("pre", children=[ParentNode(kid.tag, text_to_children(kid.value), kid.props)]))
+
+
+    #print(HTMLNode(tag=None, value=None, children=new_children))
+    return ParentNode(tag="div", children=new_children)
+    

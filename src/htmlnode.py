@@ -19,6 +19,8 @@ class HTMLNode:
         return f"HTMLNode(tag=\"{self.tag}\", value=\"{self.value}\", children={self.children}, props={self.props})"
     
     def __eq__(self, other) -> bool:
+        if type(other) != type(self):
+            return False
         return (self.tag == other.tag and 
                 self.value == other.value and
                 self.children == other.children and
@@ -38,6 +40,8 @@ class LeafNode(HTMLNode):
             return self.value
         
         all_props = self.props_to_html() if self.props else ""
+        if self.tag == 'img':
+            return f"<{self.tag}{all_props} alt=\"{self.value}\"></{self.tag}>"
         return f"<{self.tag}{all_props}>{self.value}</{self.tag}>"
     def __repr__(self) -> str:
         return f"LeafNode(tag=\"{self.tag}\", value=\"{self.value}\", props={self.props})"
