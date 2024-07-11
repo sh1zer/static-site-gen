@@ -18,12 +18,12 @@ def generate_page(source_path:str, template_path:str, dest_path:str) -> None:
         template += temp.read()
 
     html_string = markdown_to_html_node(markdown).to_html()
-    print(html_string + '\n\n')
+    #print(html_string + '\n\n')
 
 
     template = template.replace("{{ Title }}", extract_title(markdown), 1)
     template = template.replace("{{ Content }}", html_string, 1)
-    print(template)
+    #print(template)
     if os.path.isdir('/'.join(dest_path.split('/')[:-1])):
         with open(dest_path, "w") as dest:
             dest.write(template)

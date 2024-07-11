@@ -220,6 +220,9 @@ This is the same paragraph on a new line
         
         block = "```heading text```"
         self.assertEqual(block_to_html(block), HTMLNode(tag="code", value="heading text", children=None, props=None))
+
+        block = "```\nheading\n text\n```"
+        self.assertEqual(block_to_html(block), HTMLNode(tag="code", value="\nheading\n text\n", children=None, props=None))
         
 
     def test_text_to_children(self):
@@ -256,7 +259,7 @@ This is the same paragraph on a new line
         #    print(f"{str(mth_block).split('LeafNode')[i]}\n{str(expected).split('LeafNode')[i]}\n\n")
         self.assertEqual(mth_block, expected)
 
-        block = "# heading text**bold text** `code text`\n\n- just some more\n- *italics* hehe ![image](https://url.com.png)\n\n> hoho [link](https://link.edu.pl)\n\n```codeblock*bangbang*```"
+        block = "# heading text**bold text** `code text`\n\n- just some more\n- *italics* hehe ![image](https://url.com.png)\n\n> hoho [link](https://link.edu.pl)\n\n```codeblock\n*bangbang*```"
         mth_block = markdown_to_html_node(block)
         expected = ParentNode(tag="div", children=[ParentNode(tag="h1", children=[LeafNode(tag=None, value="heading text", props=None),
                                                                                         LeafNode(tag="b", value="bold text", props=None),
@@ -269,7 +272,7 @@ This is the same paragraph on a new line
                                                                                         LeafNode(tag=None, value="</li>", props=None),]),
                                                             ParentNode(tag="blockquote", children=[LeafNode(tag=None, value=" hoho ", props=None),
                                                                                         LeafNode(tag="a", value="link", props={"href":"https://link.edu.pl"}),]),
-                                                            ParentNode(tag="pre", children=[ParentNode("code", children=[LeafNode(tag=None, value="codeblock"),
+                                                            ParentNode(tag="pre", children=[ParentNode("code", children=[LeafNode(tag=None, value="codeblock\n"),
                                                                                                                         LeafNode(tag='i', value="bangbang"),])])                            
                                                                                         ])
         #for i in range(len(str(mth_block).split('LeafNode'))):
@@ -277,7 +280,6 @@ This is the same paragraph on a new line
         #print(mth_block.to_html())
         self.assertEqual(str(mth_block), str(expected))
 
-        
 
 
 if __name__ == '__main__':

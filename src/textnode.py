@@ -146,11 +146,11 @@ def block_to_block_type(block:str) -> str:
     if len(block.split()[0]) == block.split()[0].count("#") and block.split()[0].count("#") in range(1,7):
         return block_type_heading
     
-    if block[:3] == "```" and block[-3:] == "```":
+    if block[:4] == "```\n" and block[-4:] == "\n```":
         return block_type_code
 
     lines = block.split('\n')
-    if len(lines) == [line[0] for line in lines].count('>'):
+    if len(lines) == [line[:2] for line in lines].count('> '):
         return block_type_quote
 
     if len(lines) == [line[:2] for line in lines].count('- ') or len(lines) == [line[:2] for line in lines].count('* '):
@@ -174,13 +174,13 @@ def block_heading_to_html(block:str) -> HTMLNode:
 def block_code_to_html(block:str) -> HTMLNode:
     if block_to_block_type(block) != block_type_code:
         raise ValueError("Incorrect block type")
-    return HTMLNode(tag="code", value=block[3:-3], children=None, props=None)
+    return HTMLNode(tag="code", value=block[4:-4], children=None, props=None)
 
 def block_quote_to_html(block:str) -> HTMLNode:
     if block_to_block_type(block) != block_type_quote:
         raise ValueError("Incorrect block type")
     lines = block.split('\n')
-    return HTMLNode(tag="blockquote", value='\n'.join([line[1:] for line in lines]), children=None, props=None)
+    return HTMLNode(tag="blockquote", value='\n'.join([line[2:] for line in lines]), children=None, props=None)
 
 def block_unordered_list_to_html(block:str) -> HTMLNode:
     if block_to_block_type(block) != block_type_unordered_list:
@@ -229,14 +229,17 @@ def markdown_to_html_node(markdown:str) -> HTMLNode:
     og_children = [block_to_html(block) for block in blocks]
     new_children = []
     for kid in og_children:
-        if len(text_to_children(kid.value)) == 1:
+
+        if kid.tag == "code":
+            new_children.append(ParentNode("pre", children=[ParentNode(kid.tag, text_to_children(kid.value), kid.props)]))
+        elif len(text_to_children(kid.value)) == 1:
             new_children.append(LeafNode(kid.tag, kid.value, kid.props))
             
         else:
             if kid.tag != "code":
                 new_children.append(ParentNode(kid.tag, text_to_children(kid.value), kid.props))
-            else:
-                new_children.append(ParentNode("pre", children=[ParentNode(kid.tag, text_to_children(kid.value), kid.props)]))
+            #else:
+               # new_children.append(ParentNode("pre", children=[ParentNode(kid.tag, text_to_children(kid.value), kid.props)]))
 
 
     #print(HTMLNode(tag=None, value=None, children=new_children))
